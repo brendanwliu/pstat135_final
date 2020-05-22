@@ -75,7 +75,7 @@ docs/_build/
 target/
 
 # Jupyter Notebook
-.ipynb_checkpoints
+.ipynb_checkpoints/
 
 # IPython
 profile_default/
@@ -128,7 +128,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Ignore data files
- input/
- .DS_Store
- .gitignore.swp
+# Ignore large inpute data files
+input/
+
+
+# Useless MacOS stuff
+.DS_Store
+.gitignore.swp
