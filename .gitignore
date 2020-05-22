@@ -130,3 +130,5 @@ dmypy.json
 
 # Ignore data files
  input/
+ .DS_Store
+ .gitignore.swp
