@@ -49,10 +49,16 @@ if(t_agg == "met"):
     met06_data = met06_data.drop(*['USRCODES'])
 
     met04_data = spark.read.option("header", "true") \
-        .option("delimiter", "\t") \
+        .option("delimiter", ",") \
         .option("inferSchema", "true") \
         .csv(met_2004)
-    met04_data = met04_data.drop(*['USRCODES'])
+    # dropping all F_ columns (deemed unnecessary)
+    dropped_cols = [f for f in met04_data.columns if f[0] == 'F']
+    met04_data = met04_data.drop(*dropped_cols)
+    # splitting date and time into two separate columns
+    split_col = F.split(met04_data['DateTimeStamp'], '\ ')
+    met04_data = met04_data.withColumn('SMPLDATE', split_col.getItem(0)).withColumn('SMPLTIME', split_col.getItem(1))
+    met04_data = met04_data.drop(*['DateTimeStamp','USRCODES'])
 
     met04_data.toPandas().to_csv("./input/clean/agg/NOAA_meteor_data_2004.csv")
     met05_data.toPandas().to_csv("./input/clean/agg/NOAA_meteor_data_2005.csv")
