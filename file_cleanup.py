@@ -5,10 +5,12 @@ from pyspark.sql.types import *
 import os
 import re
 
+# AGGREGATION OF DATA FROM NORTH CAROLINA. 
+
 sc = SparkContext('local')
 spark = SparkSession(sc)
 
-rootdir = './input/raw'
+rootdir = './input/raw/North Carolina/'
 
 t_agg = input("Enter met, nut, or water to aggregate that data:")
 except_t = 'You must enter met, nut, or water. Instead you entered {}'
@@ -23,7 +25,7 @@ for subdir, dirs, files in os.walk(rootdir):
 text = [file for file in file_list if any(txt in file for txt in ['.txt'])]
 regex = re.compile(r'.*(Readme).*|.*(checkpoint).*')
 text_list = [i for i in text if not regex.match(i)]
-text_list
+print(text_list)
 
 met_list = [file for file in text_list if any(txt in file for txt in ['meteorological'])]
 nut_list = [file for file in text_list if any(txt in file for txt in ['nutrient'])]
@@ -49,20 +51,21 @@ if(t_agg == "met"):
     met06_data = met06_data.drop(*['USRCODES'])
 
     met04_data = spark.read.option("header", "true") \
-        .option("delimiter", ",") \
+        .option("delimiter", "\t") \
         .option("inferSchema", "true") \
         .csv(met_2004)
+    met04_data = met04_data.drop(*['USRCODES'])
     # dropping all F_ columns (deemed unnecessary)
-    dropped_cols = [f for f in met04_data.columns if f[0] == 'F']
-    met04_data = met04_data.drop(*dropped_cols)
+    # dropped_cols = [f for f in met04_data.columns if f[0] == 'F']
+    # met04_data = met04_data.drop(*dropped_cols)
     # splitting date and time into two separate columns
-    split_col = F.split(met04_data['DateTimeStamp'], '\ ')
-    met04_data = met04_data.withColumn('SMPLDATE', split_col.getItem(0)).withColumn('SMPLTIME', split_col.getItem(1))
-    met04_data = met04_data.drop(*['DateTimeStamp','USRCODES'])
+    # split_col = F.split(met04_data['DateTimeStamp'], '\ ')
+    #met04_data = met04_data.withColumn('SMPLDATE', split_col.getItem(0)).withColumn('SMPLTIME', split_col.getItem(1))
+    #met04_data = met04_data.drop(*['DateTimeStamp','USRCODES'])
 
-    met04_data.toPandas().to_csv("./input/clean/agg/NOAA_meteor_data_2004.csv")
-    met05_data.toPandas().to_csv("./input/clean/agg/NOAA_meteor_data_2005.csv")
-    met06_data.toPandas().to_csv("./input/clean/agg/NOAA_meteor_data_2006.csv")
+    met04_data.toPandas().to_csv("./input/clean/agg/NOAA_NC_meteor_data_2004.csv")
+    met05_data.toPandas().to_csv("./input/clean/agg/NOAA_NC_meteor_data_2005.csv")
+    met06_data.toPandas().to_csv("./input/clean/agg/NOAA_NC_meteor_data_2006.csv")
 
     print("Done! Exported to ./input/clean/agg")
 
@@ -88,9 +91,9 @@ if(t_agg == "nut"):
         .option("inferSchema", "true") \
         .csv(nut_2004)
 
-    nut04_data.toPandas().to_csv("./input/clean/agg/NOAA_nutrient_data_2004.csv")
-    nut05_data.toPandas().to_csv("./input/clean/agg/NOAA_nutrient_data_2005.csv")
-    nut06_data.toPandas().to_csv("./input/clean/agg/NOAA_nutrient_data_2006.csv")
+    nut04_data.toPandas().to_csv("./input/clean/agg/NOAA_NC_nutrient_data_2004.csv")
+    nut05_data.toPandas().to_csv("./input/clean/agg/NOAA_NC_nutrient_data_2005.csv")
+    nut06_data.toPandas().to_csv("./input/clean/agg/NOAA_NC_nutrient_data_2006.csv")
 
     print("Done! Exported to ./input/clean/agg")
 
@@ -116,8 +119,8 @@ if(t_agg == "water"):
         .option("inferSchema", "true") \
         .csv(water_2004)
 
-    water04_data.toPandas().to_csv("./input/clean/agg/NOAA_water_data_2004.csv")
-    water05_data.toPandas().to_csv("./input/clean/agg/NOAA_water_data_2005.csv")
-    water06_data.toPandas().to_csv("./input/clean/agg/NOAA_water_data_2006.csv")
+    water04_data.toPandas().to_csv("./input/clean/agg/NOAA_NC_water_data_2004.csv")
+    water05_data.toPandas().to_csv("./input/clean/agg/NOAA_NC_water_data_2005.csv")
+    water06_data.toPandas().to_csv("./input/clean/agg/NOAA_NC_water_data_2006.csv")
 
     print("Done! Exported to ./input/clean/agg")
